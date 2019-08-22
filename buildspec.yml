@@ -1,0 +1,24 @@
+
+version: 0.2
+env:
+  variables:
+    LAYER_NAME: psycopg2
+phases:
+  install:
+    runtime-verions:
+      python: 3.7
+    commands:
+      rsync --version || apt-get update && apt-get install rsync
+  build:
+    commands:
+      - export PY_VERSION=`echo $CODEBUILD_BUILD_IMAGE|cut -d ':' -f 2`
+      - export PY_VERSION=`echo $PY_VERSION | awk -F. '{print "python"$1"."$2}'`
+      - export PY_BUILD=$PWD/build/python/lib/${PY_VERSION}/site-packages/${LAYER_NAME}
+      - echo $PY_VERSION
+      - echo $PY_BUILD
+      - mkdir -p $PY_BUILD
+      - pip install -r requirements.txt -t $PY_BUILD
+artifacts:
+  base-directory: build
+  files:
+    - '**/*'
